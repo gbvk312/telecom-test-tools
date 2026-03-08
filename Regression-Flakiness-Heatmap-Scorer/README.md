@@ -50,3 +50,17 @@ python generate_heatmap.py \
 
 * **Faster Triage:** Instead of manually investigating every red "FAIL", the team can instantly look at the heatmap. If it's flagged as "Flaky," they know to investigate the simulator environment first. If it's a "Recent Hard Fail," they immediately raise a Problem Report.
 * **Metrics for Management:** It provides concrete data to management to show *why* the automation team needs dedicated time to fix unstable test scripts or why the simulator vendor needs to fix stability issues.
+
+## 🌐 Part of Telecom Test Toolkit
+
+This project is part of the **Telecom Test Toolkit ecosystem**.
+
+Other tools:
+
+- 5GTestScope
+- Test Monitor Dashboard
+- Regression Flakiness Analyzer
+- Test Report Generator
+
+🔗 Main project:
+https://github.com/gbvk312/telecom-test-toolkit

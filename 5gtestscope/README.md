@@ -92,6 +92,20 @@ The tool expects log files with timestamped entries. Example format:
 - Python 3.6+
 - Rich (for console formatting)
 
+## 🌐 Part of Telecom Test Toolkit
+
+This project is part of the **Telecom Test Toolkit ecosystem**.
+
+Other tools:
+
+- 5GTestScope
+- Test Monitor Dashboard
+- Regression Flakiness Analyzer
+- Test Report Generator
+
+🔗 Main project:
+https://github.com/gbvk312/telecom-test-toolkit
+
 ## License
 
 See LICENSE file for details.

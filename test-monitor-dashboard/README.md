@@ -25,3 +25,17 @@ streamlit run app.py
 ## Dashboard Structure
 - `app.py`: The entry-point for the Streamlit dashboard rendering application state and controlling layout.
 - `data_generator.py`: Generates mocked historical base data and simulates continuous real-time execution states via periodic ticks.
+
+## 🌐 Part of Telecom Test Toolkit
+
+This project is part of the **Telecom Test Toolkit ecosystem**.
+
+Other tools:
+
+- 5GTestScope
+- Test Monitor Dashboard
+- Regression Flakiness Analyzer
+- Test Report Generator
+
+🔗 Main project:
+https://github.com/gbvk312/telecom-test-toolkit

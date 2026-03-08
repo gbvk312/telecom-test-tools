@@ -60,3 +60,16 @@ test-report-gen/
 ## Future Improvements
 - Add support for structured input formats like JUnit XML or Pytest JSON.
 
+## 🌐 Part of Telecom Test Toolkit
+
+This project is part of the **Telecom Test Toolkit ecosystem**.
+
+Other tools:
+
+- 5GTestScope
+- Test Monitor Dashboard
+- Regression Flakiness Analyzer
+- Test Report Generator
+
+🔗 Main project:
+https://github.com/gbvk312/telecom-test-toolkit
