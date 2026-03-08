@@ -1,0 +1,11 @@
+# testwatch Dependencies
+# 
+# No external dependencies required.
+# Uses Python 3.6+ standard library only:
+# - sys (command-line arguments)
+# - re (regex pattern matching)
+#
+# Installation:
+#   pip install -r requirement.txt
+#
+# (This file is empty as no packages are required)

@@ -1,0 +1,5 @@
+[10:01] RRC Setup Request
+[10:02] RRC Setup Complete
+[10:03] Registration Accept
+[10:04] PDU Session Establishment
+[10:05] ERROR RRC Reconfiguration Failure

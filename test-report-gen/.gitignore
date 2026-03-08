@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+venv/
+.env
+
+# Logs and Outputs
+*.log
+*.html
+!templates/report.html
+dummy_*.log
+sample_report.html
+report.html
