@@ -1,0 +1,34 @@
+# ============================================
+# Telecom Test Toolkit — Configuration
+# ============================================
+
+# Directory containing log files to analyze
+log_directory: "./logs"
+
+# Directory for output results, reports, and pipeline data
+output_directory: "./output"
+
+# Tools to run in the pipeline (in order)
+enabled_tools:
+  - testwatch
+  - log_analyzer
+  - testscope
+  # - flakiness_scorer  # Requires CSV input, not part of log pipeline
+  - report_gen
+
+# Dashboard settings
+dashboard_port: 8501
+
+# Flakiness scorer settings
+history_file: "historical_data.csv"
+flakiness_window: 14
+
+# Tool-specific settings (optional overrides)
+tool_settings:
+  testwatch:
+    fail_patterns:
+      - "FAIL"
+      - "FAILED"
+      - "ERROR"
+      - "CRASH"
+      - "TIMEOUT"

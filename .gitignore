@@ -1,69 +1,54 @@
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
+# ============================================
+# Telecom Test Toolkit — .gitignore
+# ============================================
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
-MANIFEST
-.venv
+dist/
+build/
+*.whl
+
+# Virtual environments
 venv/
-ENV/
-.env
-pip-log.txt
-pip-delete-this-directory.txt
+.venv/
+env/
+.env/
 
-# Testing & Coverage
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
 
-# Streamlit (for test-monitor-dashboard)
+# OS files
+.DS_Store
+Thumbs.db
+
+# Pipeline output
+output/
+*.log.json
+
+# TTT working files
+.ttt/
+historical_data.csv
+
+# Tool-specific generated files
+tools/flakiness_scorer/regression_heatmap.html
+tools/report_gen/report.html
+
+# Streamlit
 .streamlit/
 
-# Documentation
-site/
-_build/
+# Jupyter
+.ipynb_checkpoints/
 
-# Project Specific
-*.log
-sample_logs.txt
-sample_log.txt
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
