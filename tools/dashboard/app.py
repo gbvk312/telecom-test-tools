@@ -3,7 +3,10 @@ import pandas as pd
 import plotly.express as px
 from time import sleep
 
-from data_generator import get_generator
+try:
+    from .data_generator import get_generator
+except ImportError:
+    from data_generator import get_generator  # type: ignore
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Test Monitor Dashboard", page_icon="🧪", layout="wide")
@@ -114,7 +117,7 @@ with chart_col1:
         color_discrete_map=color_discrete_map,
         hole=0.4,
     )
-    st.plotly_chart(fig_pie, use_container_width=True)
+    st.plotly_chart(fig_pie, width="stretch")
 
 with chart_col2:
     # Duration Scatter/Bar Chart (only for finished tests)
@@ -137,7 +140,7 @@ with chart_col2:
         )
         # remove x axis labels for cleanliness if too many
         fig_bar.update_xaxes(showticklabels=False)
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_bar, width="stretch")
     else:
         st.info("Not enough completed tests to show duration chart.")
 
@@ -173,7 +176,7 @@ with tab1:
 
     st.dataframe(
         display_df.style.map(color_status, subset=["Status"]),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -213,7 +216,7 @@ with tab2:
 
     st.dataframe(
         df_logs_filtered.style.apply(log_color, axis=1),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=400,
     )
