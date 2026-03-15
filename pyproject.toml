@@ -41,8 +41,15 @@ dashboard = [
     "streamlit>=1.20",
     "plotly>=5.0",
 ]
+dev = [
+    "pytest>=7.0",
+    "black>=23.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
+    "pre-commit>=3.0",
+]
 all = [
-    "telecom-test-toolkit[dashboard]",
+    "telecom-test-toolkit[dashboard,dev]",
 ]
 
 [project.scripts]

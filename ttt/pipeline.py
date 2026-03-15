@@ -10,8 +10,20 @@ Each stage reads from the shared PipelineOutput and appends its results.
 import os
 import json
 import glob
+import logging
 from datetime import datetime
 from typing import List, Optional
+
+from rich.logging import RichHandler
+
+# Set up structured logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler(rich_tracebacks=True, markup=True)]
+)
+logger = logging.getLogger("ttt.pipeline")
 
 from ttt.models import PipelineOutput, AnalysisResult, TestResult
 from ttt.config import TTTConfig, load_config
@@ -48,7 +60,7 @@ def run_testwatch(log_files: List[str]) -> AnalysisResult:
             results=all_results,
         )
     except Exception as e:
-        print(f"  ⚠ testwatch failed: {e}")
+        logger.error(f"testwatch failed: {e}")
         return AnalysisResult(tool_name="testwatch", raw_summary=f"Error: {e}")
 
 
@@ -63,7 +75,7 @@ def run_log_analyzer(log_files: List[str]) -> AnalysisResult:
                 return result
         return AnalysisResult(tool_name="log_analyzer", raw_summary="No relevant logs found")
     except Exception as e:
-        print(f"  ⚠ log_analyzer failed: {e}")
+        logger.error(f"log_analyzer failed: {e}")
         return AnalysisResult(tool_name="log_analyzer", raw_summary=f"Error: {e}")
 
 
@@ -77,7 +89,7 @@ def run_testscope(log_files: List[str]) -> AnalysisResult:
                 return result
         return AnalysisResult(tool_name="testscope", raw_summary="No relevant logs found")
     except Exception as e:
-        print(f"  ⚠ testscope failed: {e}")
+        logger.error(f"testscope failed: {e}")
         return AnalysisResult(tool_name="testscope", raw_summary=f"Error: {e}")
 
 
@@ -89,7 +101,7 @@ def run_report_gen(pipeline_output: PipelineOutput, output_dir: str) -> str:
         generate(pipeline_output, report_path)
         return report_path
     except Exception as e:
-        print(f"  ⚠ report_gen failed: {e}")
+        logger.error(f"report_gen failed: {e}")
         return ""
 
 
@@ -137,44 +149,44 @@ def run_pipeline(
     pipeline_output.log_files = log_files
 
     if not log_files:
-        print(f"  ⚠ No log files found in {log_dir}")
+        logger.warning(f"No log files found in {log_dir}")
         return pipeline_output
 
-    print(f"  📁 Found {len(log_files)} log file(s) in {log_dir}")
+    logger.info(f"📁 Found {len(log_files)} log file(s) in {log_dir}")
 
     enabled = config.enabled_tools
 
     # Stage 1: TestWatch (quick triage)
     if "testwatch" in enabled:
-        print("  🔍 Stage 1: Running testwatch...")
+        logger.info("🔍 Stage 1: Running testwatch...")
         result = run_testwatch(log_files)
         pipeline_output.analyses.append(result)
-        print(f"     → {result.total_events} events ({result.passed} pass, {result.failed} fail)")
+        logger.info(f"   → {result.total_events} events ({result.passed} pass, {result.failed} fail)")
 
     # Stage 2a: Log Analyzer (protocol analysis)
     if "log_analyzer" in enabled:
-        print("  📡 Stage 2a: Running log_analyzer...")
+        logger.info("📡 Stage 2a: Running log_analyzer...")
         result = run_log_analyzer(log_files)
         pipeline_output.analyses.append(result)
-        print(f"     → {result.total_events} events, {result.success_rate}% success rate")
+        logger.info(f"   → {result.total_events} events, {result.success_rate}% success rate")
 
     # Stage 2b: TestScope (KPI engine)
     if "testscope" in enabled:
-        print("  🔬 Stage 2b: Running testscope...")
+        logger.info("🔬 Stage 2b: Running testscope...")
         result = run_testscope(log_files)
         pipeline_output.analyses.append(result)
-        print(f"     → {result.total_events} events, {len(result.issues)} issues")
+        logger.info(f"   → {result.total_events} events, {len(result.issues)} issues")
 
     # Stage 4: Report Generation
     if "report_gen" in enabled:
-        print("  📑 Stage 4: Generating HTML report...")
+        logger.info("📑 Stage 4: Generating HTML report...")
         report_path = run_report_gen(pipeline_output, out_dir)
         pipeline_output.report_path = report_path
         if report_path:
-            print(f"     → Report saved to {report_path}")
+            logger.info(f"   → Report saved to {report_path}")
 
     # Save pipeline output as JSON
     json_path = save_pipeline_output(pipeline_output, out_dir)
-    print(f"  💾 Pipeline output saved to {json_path}")
+    logger.info(f"💾 Pipeline output saved to {json_path}")
 
     return pipeline_output
