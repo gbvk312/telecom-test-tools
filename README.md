@@ -32,7 +32,8 @@ telecom-test-tools/
 │   ├── cli.py                    # Unified CLI entry point
 │   ├── config.py                 # YAML config loader
 │   ├── models.py                 # Shared data models (TestResult, etc.)
-│   └── pipeline.py               # Pipeline engine
+│   ├── pipeline.py               # Pipeline engine
+│   └── registry.py               # Tool registry
 │
 ├── tools/                        # Analysis tools
 │   ├── testwatch/                # Quick pass/fail log scanner
