@@ -12,9 +12,13 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from rich.logging import RichHandler
+
+from ttt.config import TTTConfig, load_config
+from ttt.models import AnalysisResult, PipelineOutput
+from ttt.registry import ToolRegistry
 
 # Set up structured logging
 logging.basicConfig(
@@ -24,10 +28,6 @@ logging.basicConfig(
     handlers=[RichHandler(rich_tracebacks=True, markup=True)],
 )
 logger = logging.getLogger("ttt.pipeline")
-
-from ttt.config import TTTConfig, load_config
-from ttt.models import AnalysisResult, PipelineOutput
-from ttt.registry import ToolRegistry
 
 
 def discover_log_files(log_directory: str) -> List[str]:
@@ -46,7 +46,7 @@ def run_tool(tool_name: str, log_files: List[str]) -> AnalysisResult:
 
         # Testwatch runs on all files and aggregates
         if tool_name == "testwatch":
-            all_results = []
+            all_results: List[Any] = []
             for log_file in log_files:
                 results = tool_func(log_file)
                 all_results.extend(results)

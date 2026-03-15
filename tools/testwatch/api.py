@@ -5,7 +5,7 @@ Returns structured TestResult objects instead of printing to stdout.
 """
 
 import os
-from typing import List
+from typing import List, Optional
 
 from ttt.models import TestResult
 
@@ -15,7 +15,7 @@ _tool_dir = os.path.dirname(__file__)
 FAIL_PATTERNS = ["FAIL", "FAILED", "ERROR", "CRASH", "TIMEOUT"]
 
 
-def _parse_line(line: str, patterns: List[str] = None) -> str:
+def _parse_line(line: str, patterns: Optional[List[str]] = None) -> str:
     """Check if a line matches any failure pattern."""
     import re
 
@@ -27,7 +27,7 @@ def _parse_line(line: str, patterns: List[str] = None) -> str:
     return "PASS"
 
 
-def scan(log_file: str, patterns: List[str] = None) -> List[TestResult]:
+def scan(log_file: str, patterns: Optional[List[str]] = None) -> List[TestResult]:
     """Scan a log file and return structured TestResult objects.
 
     Args:

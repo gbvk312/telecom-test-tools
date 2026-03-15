@@ -1,21 +1,20 @@
 import importlib
-from typing import Callable, Dict
+from typing import Any, Callable, Dict
 
-from ttt.models import AnalysisResult
 
 
 class ToolRegistry:
     """Registry for discovering and loading analysis tools."""
 
-    _tools: Dict[str, Callable[[list], AnalysisResult]] = {}
+    _tools: Dict[str, Callable[..., Any]] = {}
 
     @classmethod
-    def register(cls, name: str, func: Callable[[list], AnalysisResult]):
+    def register(cls, name: str, func: Callable[..., Any]):
         """Register a tool function by name."""
         cls._tools[name] = func
 
     @classmethod
-    def get_tool(cls, name: str) -> Callable[[list], AnalysisResult]:
+    def get_tool(cls, name: str) -> Callable[..., Any]:
         """Fetch a registered tool function."""
         if name not in cls._tools:
             # Attempt to lazy load from standard paths
