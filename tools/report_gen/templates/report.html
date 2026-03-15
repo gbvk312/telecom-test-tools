@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Execution Report</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .summary { background: #f4f4f4; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .passed { color: green; }
+        .failed { color: red; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #eee; }
+        tr.failed { background: #fff1f1; }
+    </style>
+</head>
+<body>
+    <h1>Test Execution Report</h1>
+    
+    <div class="summary">
+        <h2>Summary</h2>
+        <p>Total Tests: {{ summary.total }}</p>
+        <p class="passed">Passed: {{ summary.passed }}</p>
+        <p class="failed">Failed: {{ summary.failed }}</p>
+    </div>
+
+    <h2>Details</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Test Case</th>
+                <th>Status</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detail in details %}
+            <tr class="{{ detail.status.lower() }}">
+                <td>{{ detail.test_id }}</td>
+                <td>{{ detail.status }}</td>
+                <td>{{ detail.message }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

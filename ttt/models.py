@@ -5,13 +5,12 @@ All tools produce and consume these models as their data contracts,
 enabling seamless data flow between pipeline stages.
 """
 
-from dataclasses import dataclass, field
+from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 
 
-@dataclass
-class TestResult:
+class TestResult(BaseModel):
     """A single test result from any analysis tool.
 
     This is the universal data contract — every tool that analyzes logs
@@ -23,26 +22,20 @@ class TestResult:
     timestamp: Optional[str] = None
     source_tool: str = ""
     message: str = ""
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+    class Config:
+        from_attributes = True
 
     def to_dict(self) -> dict:
-        return {
-            "test_id": self.test_id,
-            "status": self.status,
-            "duration_seconds": self.duration_seconds,
-            "timestamp": self.timestamp,
-            "source_tool": self.source_tool,
-            "message": self.message,
-            "metadata": self.metadata,
-        }
+        return self.model_dump()
 
     @classmethod
     def from_dict(cls, data: dict) -> "TestResult":
-        return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
+        return cls.model_validate(data)
 
 
-@dataclass
-class AnalysisResult:
+class AnalysisResult(BaseModel):
     """Aggregated analysis output from a single tool run.
 
     Produced by log analyzers (testwatch, log_analyzer, testscope).
@@ -52,34 +45,23 @@ class AnalysisResult:
     passed: int = 0
     failed: int = 0
     success_rate: float = 0.0
-    results: List[TestResult] = field(default_factory=list)
-    kpis: Dict[str, Any] = field(default_factory=dict)
-    issues: List[str] = field(default_factory=list)
+    results: List[TestResult] = Field(default_factory=list)
+    kpis: Dict[str, Any] = Field(default_factory=dict)
+    issues: List[str] = Field(default_factory=list)
     raw_summary: str = ""
 
+    class Config:
+        from_attributes = True
+
     def to_dict(self) -> dict:
-        return {
-            "tool_name": self.tool_name,
-            "total_events": self.total_events,
-            "passed": self.passed,
-            "failed": self.failed,
-            "success_rate": self.success_rate,
-            "results": [r.to_dict() for r in self.results],
-            "kpis": self.kpis,
-            "issues": self.issues,
-            "raw_summary": self.raw_summary,
-        }
+        return self.model_dump()
 
     @classmethod
     def from_dict(cls, data: dict) -> "AnalysisResult":
-        results_data = data.pop("results", [])
-        obj = cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
-        obj.results = [TestResult.from_dict(r) for r in results_data]
-        return obj
+        return cls.model_validate(data)
 
 
-@dataclass
-class FlakinessReport:
+class FlakinessReport(BaseModel):
     """Output from the flakiness scorer tool.
 
     Categorizes each test case by stability diagnosis.
@@ -90,48 +72,35 @@ class FlakinessReport:
     transitions: int = 0
     last_status: str = ""
 
+    class Config:
+        from_attributes = True
+
     def to_dict(self) -> dict:
-        return {
-            "test_id": self.test_id,
-            "diagnosis": self.diagnosis,
-            "builds_analyzed": self.builds_analyzed,
-            "transitions": self.transitions,
-            "last_status": self.last_status,
-        }
+        return self.model_dump()
 
     @classmethod
     def from_dict(cls, data: dict) -> "FlakinessReport":
-        return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
+        return cls.model_validate(data)
 
 
-@dataclass
-class PipelineOutput:
+class PipelineOutput(BaseModel):
     """Complete output from a full pipeline run.
 
     Aggregates results from all tools into a single object.
     """
     run_id: str
     timestamp: str = ""
-    log_files: List[str] = field(default_factory=list)
-    analyses: List[AnalysisResult] = field(default_factory=list)
-    flakiness_reports: List[FlakinessReport] = field(default_factory=list)
+    log_files: List[str] = Field(default_factory=list)
+    analyses: List[AnalysisResult] = Field(default_factory=list)
+    flakiness_reports: List[FlakinessReport] = Field(default_factory=list)
     report_path: Optional[str] = None
 
+    class Config:
+        from_attributes = True
+
     def to_dict(self) -> dict:
-        return {
-            "run_id": self.run_id,
-            "timestamp": self.timestamp,
-            "log_files": self.log_files,
-            "analyses": [a.to_dict() for a in self.analyses],
-            "flakiness_reports": [f.to_dict() for f in self.flakiness_reports],
-            "report_path": self.report_path,
-        }
+        return self.model_dump()
 
     @classmethod
     def from_dict(cls, data: dict) -> "PipelineOutput":
-        analyses_data = data.pop("analyses", [])
-        flakiness_data = data.pop("flakiness_reports", [])
-        obj = cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
-        obj.analyses = [AnalysisResult.from_dict(a) for a in analyses_data]
-        obj.flakiness_reports = [FlakinessReport.from_dict(f) for f in flakiness_data]
-        return obj
+        return cls.model_validate(data)

@@ -1,0 +1,7 @@
+TestCase_ID,gNB_Build,Status
+TC_001,Build_101,Pass
+TC_001,Build_102,Fail
+TC_001,Build_103,Pass
+TC_002,Build_101,Pass
+TC_002,Build_102,Pass
+TC_003,Build_103,Fail
