@@ -5,8 +5,8 @@ try:
     from .watcher import watch_log
     from .parser import FAIL_PATTERNS
 except ImportError:
-    from watcher import watch_log
-    from parser import FAIL_PATTERNS
+    from watcher import watch_log  # type: ignore
+    from parser import FAIL_PATTERNS  # type: ignore
 
 
 def main():

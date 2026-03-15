@@ -62,3 +62,7 @@ Repository = "https://github.com/gbvk312/telecom-test-tools"
 
 [tool.setuptools.packages.find]
 include = ["ttt*", "tools*"]
+
+[tool.mypy]
+ignore_missing_imports = true
+

@@ -39,7 +39,7 @@ class PipelineDataReader:
 
     def get_test_df(self) -> pd.DataFrame:
         """Get a DataFrame of test results from all analyses."""
-        if not self.has_data():
+        if not self.has_data() or not isinstance(self._pipeline_data, dict):
             return pd.DataFrame(
                 columns=[
                     "Test ID",
@@ -86,7 +86,7 @@ class PipelineDataReader:
 
     def get_logs_df(self) -> pd.DataFrame:
         """Get a DataFrame of execution logs from analyses."""
-        if not self.has_data():
+        if not self.has_data() or not isinstance(self._pipeline_data, dict):
             return pd.DataFrame(columns=["Timestamp", "Test ID", "Level", "Message"])
 
         rows = []
@@ -127,7 +127,7 @@ class PipelineDataReader:
 
     def get_summary(self) -> dict:
         """Get a summary dict from pipeline data."""
-        if not self.has_data():
+        if not self.has_data() or not isinstance(self._pipeline_data, dict):
             return {}
 
         return {

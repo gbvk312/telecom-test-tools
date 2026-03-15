@@ -3,7 +3,7 @@ import json
 try:
     from .parser import parse_line
 except ImportError:
-    from parser import parse_line
+    from parser import parse_line  # type: ignore
 
 
 def watch_log(file_path, patterns, json_output=False):

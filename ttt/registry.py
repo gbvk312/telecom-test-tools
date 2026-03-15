@@ -2,7 +2,6 @@ import importlib
 from typing import Any, Callable, Dict
 
 
-
 class ToolRegistry:
     """Registry for discovering and loading analysis tools."""
 
