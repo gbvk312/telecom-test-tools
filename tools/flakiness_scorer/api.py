@@ -22,7 +22,11 @@ def _evaluate_flakiness(row) -> dict:
 
     if len(statuses) == 1:
         diagnosis = "Stable" if statuses[0] == "Pass" else "Persistent Fail"
-        return {"diagnosis": diagnosis, "transitions": 0, "last_status": str(runs.iloc[-1])}
+        return {
+            "diagnosis": diagnosis,
+            "transitions": 0,
+            "last_status": str(runs.iloc[-1]),
+        }
 
     transitions = int((runs != runs.shift()).sum() - 1)
     last_status = str(runs.iloc[-1])
@@ -30,7 +34,9 @@ def _evaluate_flakiness(row) -> dict:
     if transitions >= 2:
         diagnosis = "High (Flaky)"
     elif transitions == 1:
-        diagnosis = "Recent Hard Fail" if last_status == "Fail" else "Fixed (Recent Pass)"
+        diagnosis = (
+            "Recent Hard Fail" if last_status == "Fail" else "Fixed (Recent Pass)"
+        )
     else:
         diagnosis = "Stable"
 
@@ -63,18 +69,20 @@ def score(
         print(f"Error reading input file {input_csv}: {e}")
         return []
 
-    required_cols = ['TestCase_ID', 'gNB_Build', 'Status']
+    required_cols = ["TestCase_ID", "gNB_Build", "Status"]
     if not all(col in daily_df.columns for col in required_cols):
         print(f"Error: CSV must contain columns: {required_cols}")
         return []
 
     # Pivot daily data
-    daily_pivot = daily_df.pivot(index='TestCase_ID', columns='gNB_Build', values='Status')
+    daily_pivot = daily_df.pivot(
+        index="TestCase_ID", columns="gNB_Build", values="Status"
+    )
 
     # Read historical data if exists
     if os.path.exists(history_csv):
         try:
-            history_df = pd.read_csv(history_csv, index_col='TestCase_ID')
+            history_df = pd.read_csv(history_csv, index_col="TestCase_ID")
         except Exception:
             history_df = pd.DataFrame()
     else:
@@ -83,7 +91,7 @@ def score(
     # Merge
     if not history_df.empty:
         with warnings.catch_warnings():
-            warnings.simplefilter(action='ignore', category=FutureWarning)
+            warnings.simplefilter(action="ignore", category=FutureWarning)
             merged_df = history_df.combine_first(daily_pivot)
     else:
         merged_df = daily_pivot
@@ -102,12 +110,14 @@ def score(
         eval_result = _evaluate_flakiness(row)
         builds_analyzed = int(row.notna().sum())
 
-        reports.append(FlakinessReport(
-            test_id=str(test_id),
-            diagnosis=eval_result["diagnosis"],
-            builds_analyzed=builds_analyzed,
-            transitions=eval_result["transitions"],
-            last_status=eval_result["last_status"],
-        ))
+        reports.append(
+            FlakinessReport(
+                test_id=str(test_id),
+                diagnosis=eval_result["diagnosis"],
+                builds_analyzed=builds_analyzed,
+                transitions=eval_result["transitions"],
+                last_status=eval_result["last_status"],
+            )
+        )
 
     return reports

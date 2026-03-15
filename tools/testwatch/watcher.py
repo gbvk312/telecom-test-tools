@@ -1,4 +1,5 @@
 import json
+
 try:
     from .parser import parse_line
 except ImportError:
@@ -28,13 +29,7 @@ def watch_log(file_path, patterns, json_output=False):
                 results.append({"line": stripped_line, "status": result})
 
     if json_output:
-        output = {
-            "results": results,
-            "summary": {
-                "passed": passed,
-                "failed": failed
-            }
-        }
+        output = {"results": results, "summary": {"passed": passed, "failed": failed}}
         print(json.dumps(output, indent=4))
     else:
         print("\nSummary")

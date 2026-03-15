@@ -7,10 +7,10 @@ Chains tools together in sequence:
 Each stage reads from the shared PipelineOutput and appends its results.
 """
 
-import os
-import json
 import glob
+import json
 import logging
+import os
 from datetime import datetime
 from typing import List, Optional
 
@@ -21,12 +21,13 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(message)s",
     datefmt="[%X]",
-    handlers=[RichHandler(rich_tracebacks=True, markup=True)]
+    handlers=[RichHandler(rich_tracebacks=True, markup=True)],
 )
 logger = logging.getLogger("ttt.pipeline")
 
-from ttt.models import PipelineOutput, AnalysisResult, TestResult
 from ttt.config import TTTConfig, load_config
+from ttt.models import AnalysisResult, PipelineOutput
+from ttt.registry import ToolRegistry
 
 
 def discover_log_files(log_directory: str) -> List[str]:
@@ -38,65 +39,55 @@ def discover_log_files(log_directory: str) -> List[str]:
     return sorted(set(files))
 
 
-def run_testwatch(log_files: List[str]) -> AnalysisResult:
-    """Stage 1: Quick triage scan using testwatch."""
+def run_tool(tool_name: str, log_files: List[str]) -> AnalysisResult:
+    """Run an analysis tool securely via the registry."""
     try:
-        from tools.testwatch.api import scan
-        all_results = []
+        tool_func = ToolRegistry.get_tool(tool_name)
+
+        # Testwatch runs on all files and aggregates
+        if tool_name == "testwatch":
+            all_results = []
+            for log_file in log_files:
+                results = tool_func(log_file)
+                all_results.extend(results)
+
+            passed = sum(1 for r in all_results if r.status == "pass")
+            failed = sum(1 for r in all_results if r.status == "fail")
+            total = len(all_results)
+            success_rate = round((passed / total * 100), 2) if total > 0 else 0.0
+
+            return AnalysisResult(
+                tool_name=tool_name,
+                total_events=total,
+                passed=passed,
+                failed=failed,
+                success_rate=success_rate,
+                results=all_results,
+            )
+
+        # Other analyzers run on the first relevant file
         for log_file in log_files:
-            results = scan(log_file)
-            all_results.extend(results)
+            result = tool_func(log_file)
+            if result.total_events > 0:
+                return result
 
-        passed = sum(1 for r in all_results if r.status == "pass")
-        failed = sum(1 for r in all_results if r.status == "fail")
-        total = len(all_results)
+        return AnalysisResult(tool_name=tool_name, raw_summary="No relevant logs found")
 
+    except ImportError as e:
+        logger.error(f"{tool_name} is not installed or available: {e}")
         return AnalysisResult(
-            tool_name="testwatch",
-            total_events=total,
-            passed=passed,
-            failed=failed,
-            success_rate=round((passed / total * 100), 2) if total > 0 else 0.0,
-            results=all_results,
+            tool_name=tool_name, raw_summary=f"Missing Dependency: {e}"
         )
     except Exception as e:
-        logger.error(f"testwatch failed: {e}")
-        return AnalysisResult(tool_name="testwatch", raw_summary=f"Error: {e}")
-
-
-def run_log_analyzer(log_files: List[str]) -> AnalysisResult:
-    """Stage 2a: Protocol-level analysis using 5g-log-analyzer."""
-    try:
-        from tools.log_analyzer.api import analyze
-        # Use first log file that looks like a gNodeB log
-        for log_file in log_files:
-            result = analyze(log_file)
-            if result.total_events > 0:
-                return result
-        return AnalysisResult(tool_name="log_analyzer", raw_summary="No relevant logs found")
-    except Exception as e:
-        logger.error(f"log_analyzer failed: {e}")
-        return AnalysisResult(tool_name="log_analyzer", raw_summary=f"Error: {e}")
-
-
-def run_testscope(log_files: List[str]) -> AnalysisResult:
-    """Stage 2b: KPI & failure intelligence using 5gtestscope."""
-    try:
-        from tools.testscope.api import analyze
-        for log_file in log_files:
-            result = analyze(log_file)
-            if result.total_events > 0:
-                return result
-        return AnalysisResult(tool_name="testscope", raw_summary="No relevant logs found")
-    except Exception as e:
-        logger.error(f"testscope failed: {e}")
-        return AnalysisResult(tool_name="testscope", raw_summary=f"Error: {e}")
+        logger.error(f"{tool_name} failed unexpectedly: {e}")
+        return AnalysisResult(tool_name=tool_name, raw_summary=f"Error: {e}")
 
 
 def run_report_gen(pipeline_output: PipelineOutput, output_dir: str) -> str:
     """Stage 4: Generate HTML report from pipeline data."""
     try:
         from tools.report_gen.api import generate
+
         report_path = os.path.join(output_dir, "report.html")
         generate(pipeline_output, report_path)
         return report_path
@@ -159,21 +150,25 @@ def run_pipeline(
     # Stage 1: TestWatch (quick triage)
     if "testwatch" in enabled:
         logger.info("🔍 Stage 1: Running testwatch...")
-        result = run_testwatch(log_files)
+        result = run_tool("testwatch", log_files)
         pipeline_output.analyses.append(result)
-        logger.info(f"   → {result.total_events} events ({result.passed} pass, {result.failed} fail)")
+        logger.info(
+            f"   → {result.total_events} events ({result.passed} pass, {result.failed} fail)"
+        )
 
     # Stage 2a: Log Analyzer (protocol analysis)
     if "log_analyzer" in enabled:
         logger.info("📡 Stage 2a: Running log_analyzer...")
-        result = run_log_analyzer(log_files)
+        result = run_tool("log_analyzer", log_files)
         pipeline_output.analyses.append(result)
-        logger.info(f"   → {result.total_events} events, {result.success_rate}% success rate")
+        logger.info(
+            f"   → {result.total_events} events, {result.success_rate}% success rate"
+        )
 
     # Stage 2b: TestScope (KPI engine)
     if "testscope" in enabled:
         logger.info("🔬 Stage 2b: Running testscope...")
-        result = run_testscope(log_files)
+        result = run_tool("testscope", log_files)
         pipeline_output.analyses.append(result)
         logger.info(f"   → {result.total_events} events, {len(result.issues)} issues")
 

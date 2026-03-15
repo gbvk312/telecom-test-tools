@@ -17,11 +17,18 @@ DEFAULT_CONFIG_NAME = "ttt.config.yaml"
 @dataclass
 class TTTConfig:
     """Parsed configuration for the Telecom Test Toolkit."""
+
     log_directory: str = "./logs"
     output_directory: str = "./output"
-    enabled_tools: list = field(default_factory=lambda: [
-        "testwatch", "log_analyzer", "testscope", "flakiness_scorer", "report_gen"
-    ])
+    enabled_tools: list = field(
+        default_factory=lambda: [
+            "testwatch",
+            "log_analyzer",
+            "testscope",
+            "flakiness_scorer",
+            "report_gen",
+        ]
+    )
     tool_settings: Dict[str, Any] = field(default_factory=dict)
     dashboard_port: int = 8501
     history_file: str = "historical_data.csv"

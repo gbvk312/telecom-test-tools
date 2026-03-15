@@ -40,20 +40,46 @@ class PipelineDataReader:
     def get_test_df(self) -> pd.DataFrame:
         """Get a DataFrame of test results from all analyses."""
         if not self.has_data():
-            return pd.DataFrame(columns=['Test ID', 'Suite', 'Status', 'Start Time', 'End Time', 'Duration (s)'])
+            return pd.DataFrame(
+                columns=[
+                    "Test ID",
+                    "Suite",
+                    "Status",
+                    "Start Time",
+                    "End Time",
+                    "Duration (s)",
+                ]
+            )
 
         rows = []
         for analysis in self._pipeline_data.get("analyses", []):
             for result in analysis.get("results", []):
-                status_map = {"pass": "Passed", "fail": "Failed", "error": "Failed", "skip": "Skipped"}
-                rows.append({
-                    'Test ID': result.get("test_id", ""),
-                    'Suite': analysis.get("tool_name", ""),
-                    'Status': status_map.get(result.get("status", ""), result.get("status", "")),
-                    'Start Time': pd.Timestamp(self._pipeline_data.get("timestamp", datetime.now().isoformat())),
-                    'End Time': pd.Timestamp(self._pipeline_data.get("timestamp", datetime.now().isoformat())),
-                    'Duration (s)': result.get("duration_seconds"),
-                })
+                status_map = {
+                    "pass": "Passed",
+                    "fail": "Failed",
+                    "error": "Failed",
+                    "skip": "Skipped",
+                }
+                rows.append(
+                    {
+                        "Test ID": result.get("test_id", ""),
+                        "Suite": analysis.get("tool_name", ""),
+                        "Status": status_map.get(
+                            result.get("status", ""), result.get("status", "")
+                        ),
+                        "Start Time": pd.Timestamp(
+                            self._pipeline_data.get(
+                                "timestamp", datetime.now().isoformat()
+                            )
+                        ),
+                        "End Time": pd.Timestamp(
+                            self._pipeline_data.get(
+                                "timestamp", datetime.now().isoformat()
+                            )
+                        ),
+                        "Duration (s)": result.get("duration_seconds"),
+                    }
+                )
 
         df = pd.DataFrame(rows)
         return df
@@ -61,28 +87,40 @@ class PipelineDataReader:
     def get_logs_df(self) -> pd.DataFrame:
         """Get a DataFrame of execution logs from analyses."""
         if not self.has_data():
-            return pd.DataFrame(columns=['Timestamp', 'Test ID', 'Level', 'Message'])
+            return pd.DataFrame(columns=["Timestamp", "Test ID", "Level", "Message"])
 
         rows = []
         for analysis in self._pipeline_data.get("analyses", []):
             # Create log entries from issues
             for issue in analysis.get("issues", []):
-                rows.append({
-                    'Timestamp': pd.Timestamp(self._pipeline_data.get("timestamp", datetime.now().isoformat())),
-                    'Test ID': analysis.get("tool_name", ""),
-                    'Level': 'ERROR',
-                    'Message': issue,
-                })
+                rows.append(
+                    {
+                        "Timestamp": pd.Timestamp(
+                            self._pipeline_data.get(
+                                "timestamp", datetime.now().isoformat()
+                            )
+                        ),
+                        "Test ID": analysis.get("tool_name", ""),
+                        "Level": "ERROR",
+                        "Message": issue,
+                    }
+                )
 
             # Create log entries from results
             for result in analysis.get("results", []):
                 level = "ERROR" if result.get("status") == "fail" else "INFO"
-                rows.append({
-                    'Timestamp': pd.Timestamp(self._pipeline_data.get("timestamp", datetime.now().isoformat())),
-                    'Test ID': result.get("test_id", ""),
-                    'Level': level,
-                    'Message': result.get("message", ""),
-                })
+                rows.append(
+                    {
+                        "Timestamp": pd.Timestamp(
+                            self._pipeline_data.get(
+                                "timestamp", datetime.now().isoformat()
+                            )
+                        ),
+                        "Test ID": result.get("test_id", ""),
+                        "Level": level,
+                        "Message": result.get("message", ""),
+                    }
+                )
 
         df = pd.DataFrame(rows)
         return df
@@ -109,7 +147,7 @@ def get_reader(data_dir: Optional[str] = None):
     """
     import streamlit as st
 
-    if 'data_reader' not in st.session_state:
+    if "data_reader" not in st.session_state:
         dir_to_use = data_dir or os.environ.get("TTT_DATA_DIR", "./output")
 
         reader = PipelineDataReader(dir_to_use)
@@ -120,6 +158,7 @@ def get_reader(data_dir: Optional[str] = None):
         else:
             # Fall back to mock data for demos
             from tools.dashboard.data_generator import MockTestGenerator
+
             st.session_state.data_reader = MockTestGenerator()
             st.session_state.data_mode = "mock"
 

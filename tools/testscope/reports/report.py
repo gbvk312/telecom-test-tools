@@ -2,6 +2,7 @@ from rich.console import Console
 
 console = Console()
 
+
 def print_report(kpis, failures):
 
     console.print("\n[bold cyan]5G Test Summary[/bold cyan]\n")

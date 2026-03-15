@@ -5,8 +5,7 @@ All tools produce and consume these models as their data contracts,
 enabling seamless data flow between pipeline stages.
 """
 
-from pydantic import BaseModel, Field
-from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any
 
 
@@ -16,6 +15,7 @@ class TestResult(BaseModel):
     This is the universal data contract — every tool that analyzes logs
     should produce a list of TestResult objects.
     """
+
     test_id: str
     status: str  # "pass", "fail", "skip", "error", "running"
     duration_seconds: Optional[float] = None
@@ -24,8 +24,7 @@ class TestResult(BaseModel):
     message: str = ""
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
     def to_dict(self) -> dict:
         return self.model_dump()
@@ -40,6 +39,7 @@ class AnalysisResult(BaseModel):
 
     Produced by log analyzers (testwatch, log_analyzer, testscope).
     """
+
     tool_name: str
     total_events: int = 0
     passed: int = 0
@@ -50,8 +50,7 @@ class AnalysisResult(BaseModel):
     issues: List[str] = Field(default_factory=list)
     raw_summary: str = ""
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
     def to_dict(self) -> dict:
         return self.model_dump()
@@ -66,14 +65,14 @@ class FlakinessReport(BaseModel):
 
     Categorizes each test case by stability diagnosis.
     """
+
     test_id: str
     diagnosis: str  # "Stable", "High (Flaky)", "Recent Hard Fail", etc.
     builds_analyzed: int = 0
     transitions: int = 0
     last_status: str = ""
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
     def to_dict(self) -> dict:
         return self.model_dump()
@@ -88,6 +87,7 @@ class PipelineOutput(BaseModel):
 
     Aggregates results from all tools into a single object.
     """
+
     run_id: str
     timestamp: str = ""
     log_files: List[str] = Field(default_factory=list)
@@ -95,8 +95,7 @@ class PipelineOutput(BaseModel):
     flakiness_reports: List[FlakinessReport] = Field(default_factory=list)
     report_path: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
     def to_dict(self) -> dict:
         return self.model_dump()

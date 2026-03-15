@@ -5,7 +5,6 @@ Returns structured TestResult objects instead of printing to stdout.
 """
 
 import os
-import sys
 from typing import List
 
 from ttt.models import TestResult
@@ -13,18 +12,13 @@ from ttt.models import TestResult
 # Add the testwatch directory to path for imports
 _tool_dir = os.path.dirname(__file__)
 
-FAIL_PATTERNS = [
-    "FAIL",
-    "FAILED",
-    "ERROR",
-    "CRASH",
-    "TIMEOUT"
-]
+FAIL_PATTERNS = ["FAIL", "FAILED", "ERROR", "CRASH", "TIMEOUT"]
 
 
 def _parse_line(line: str, patterns: List[str] = None) -> str:
     """Check if a line matches any failure pattern."""
     import re
+
     if patterns is None:
         patterns = FAIL_PATTERNS
     for pattern in patterns:
@@ -56,12 +50,17 @@ def scan(log_file: str, patterns: List[str] = None) -> List[TestResult]:
             status_raw = _parse_line(stripped, patterns)
             status = "pass" if status_raw == "PASS" else "fail"
 
-            results.append(TestResult(
-                test_id=stripped,
-                status=status,
-                source_tool="testwatch",
-                message=stripped,
-                metadata={"line_number": i, "source_file": os.path.basename(log_file)},
-            ))
+            results.append(
+                TestResult(
+                    test_id=stripped,
+                    status=status,
+                    source_tool="testwatch",
+                    message=stripped,
+                    metadata={
+                        "line_number": i,
+                        "source_file": os.path.basename(log_file),
+                    },
+                )
+            )
 
     return results

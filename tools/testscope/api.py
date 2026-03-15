@@ -4,13 +4,10 @@
 Returns structured AnalysisResult with KPIs and detected failures.
 """
 
-import re
-from typing import List
-
 from ttt.models import AnalysisResult, TestResult
 
 
-def _parse_log(file_path: str) -> List[str]:
+def _parse_log(file_path: str) -> list[str]:
     """Parse a 5G log file and extract events."""
     events = []
     with open(file_path, "r", encoding="utf-8") as f:
@@ -29,7 +26,7 @@ def _parse_log(file_path: str) -> List[str]:
     return events
 
 
-def _detect_failures(events: List[str]) -> List[str]:
+def _detect_failures(events: list[str]) -> list[str]:
     """Detect failures from the event list."""
     failures = []
     for event in events:
@@ -38,7 +35,7 @@ def _detect_failures(events: List[str]) -> List[str]:
     return failures
 
 
-def _calculate_kpis(events: List[str]) -> dict:
+def _calculate_kpis(events: list[str]) -> dict:
     """Calculate key performance indicators."""
     # Filter out OTHER events for KPI calculation
     relevant_events = [e for e in events if e != "OTHER"]
@@ -75,13 +72,15 @@ def analyze(log_file: str) -> AnalysisResult:
         if event == "OTHER":
             continue
         status = "fail" if event == "FAILURE" else "pass"
-        results.append(TestResult(
-            test_id=f"{event}_{i}",
-            status=status,
-            source_tool="testscope",
-            message=event,
-            metadata={"event_type": event, "sequence": i},
-        ))
+        results.append(
+            TestResult(
+                test_id=f"{event}_{i}",
+                status=status,
+                source_tool="testscope",
+                message=event,
+                metadata={"event_type": event, "sequence": i},
+            )
+        )
 
     total = kpis["total_events"]
     failed = kpis["failures"]

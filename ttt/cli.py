@@ -30,13 +30,16 @@ def pipeline():
 
 
 @pipeline.command("run")
-@click.option("--logs", "-l", default=None, help="Directory containing log files to analyze.")
-@click.option("--output", "-o", default=None, help="Directory for output results and reports.")
+@click.option(
+    "--logs", "-l", default=None, help="Directory containing log files to analyze."
+)
+@click.option(
+    "--output", "-o", default=None, help="Directory for output results and reports."
+)
 @click.option("--config", "-c", default=None, help="Path to ttt.config.yaml.")
 def pipeline_run(logs, output, config):
     """Run the full analysis pipeline: logs → analyze → score → report."""
     from ttt.pipeline import run_pipeline
-    from ttt.config import load_config
 
     cfg = load_config(config)
 
@@ -57,9 +60,13 @@ def pipeline_run(logs, output, config):
 
 
 @cli.command()
-@click.option("--tool", "-t", required=True,
-              type=click.Choice(["testwatch", "log_analyzer", "testscope"]),
-              help="Which analysis tool to run.")
+@click.option(
+    "--tool",
+    "-t",
+    required=True,
+    type=click.Choice(["testwatch", "log_analyzer", "testscope"]),
+    help="Which analysis tool to run.",
+)
 @click.option("--input", "-i", "input_file", required=True, help="Path to log file.")
 @click.option("--json-output", is_flag=True, help="Output results as JSON.")
 def analyze(tool, input_file, json_output):
@@ -72,6 +79,7 @@ def analyze(tool, input_file, json_output):
 
     if tool == "testwatch":
         from tools.testwatch.api import scan
+
         results = scan(input_file)
         if json_output:
             click.echo(json_lib.dumps([r.to_dict() for r in results], indent=2))
@@ -85,16 +93,20 @@ def analyze(tool, input_file, json_output):
 
     elif tool == "log_analyzer":
         from tools.log_analyzer.api import analyze as run_analyze
+
         result = run_analyze(input_file)
         if json_output:
             click.echo(json_lib.dumps(result.to_dict(), indent=2))
         else:
-            click.echo(f"Attach Success Rate: {result.kpis.get('attach_success_rate', 0)}%")
+            click.echo(
+                f"Attach Success Rate: {result.kpis.get('attach_success_rate', 0)}%"
+            )
             click.echo(f"RRC Failures: {result.kpis.get('rrc_failures', 0)}")
             click.echo(f"Setup Failures: {result.kpis.get('setup_failures', 0)}")
 
     elif tool == "testscope":
         from tools.testscope.api import analyze as run_analyze
+
         result = run_analyze(input_file)
         if json_output:
             click.echo(json_lib.dumps(result.to_dict(), indent=2))
@@ -110,12 +122,13 @@ def analyze(tool, input_file, json_output):
 
 @cli.command()
 @click.option("--port", "-p", default=8501, help="Port for the Streamlit dashboard.")
-@click.option("--data-dir", "-d", default=None, help="Directory with pipeline output JSON.")
+@click.option(
+    "--data-dir", "-d", default=None, help="Directory with pipeline output JSON."
+)
 def dashboard(port, data_dir):
     """Launch the Test Monitor Dashboard."""
     dashboard_app = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "tools", "dashboard", "app.py"
+        os.path.dirname(os.path.dirname(__file__)), "tools", "dashboard", "app.py"
     )
 
     if not os.path.isfile(dashboard_app):

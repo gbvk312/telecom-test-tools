@@ -6,7 +6,6 @@ comprehensive HTML report combining results from all tools.
 """
 
 import os
-from typing import Optional
 
 from ttt.models import PipelineOutput
 
@@ -166,7 +165,10 @@ def generate(pipeline_output: PipelineOutput, output_path: str) -> str:
     """
     html = _generate_html(pipeline_output)
 
-    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True)
+    os.makedirs(
+        os.path.dirname(output_path) if os.path.dirname(output_path) else ".",
+        exist_ok=True,
+    )
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)

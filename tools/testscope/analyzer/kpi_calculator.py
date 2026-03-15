@@ -8,5 +8,5 @@ def calculate_kpis(events):
     return {
         "total_events": total,
         "failures": failures,
-        "success_rate": round(success_rate, 2)
+        "success_rate": round(success_rate, 2),
     }
